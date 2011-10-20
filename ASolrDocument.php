@@ -711,7 +711,8 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 			return $response->getResults()->toArray();
 		}
 		else {
-			return array_shift($response->getResults()->toArray());
+			$results = $response->getResults()->toArray();
+			return array_shift($results);
 		}
 
 	}
