@@ -188,7 +188,7 @@ class ASolrCriteria extends SolrQuery {
 			{
 				$params[]=$value;
 			}
-			$condition=$column.':('.implode(' OR ',$params).')';
+			$condition=$column.':('.implode(' ',$params).')';
 		}
 		return $this->addCondition($condition,$operator);
 	}
@@ -232,6 +232,20 @@ class ASolrCriteria extends SolrQuery {
 	 * @return ASolrCriteria the merged criteria
 	 */
 	public function mergeWith(ASolrCriteria $criteria) {
+        foreach($criteria->getParams() as $name => $value) {
+            if (!is_array($value)) {
+                   $this->setParam($name,$value);
+            }
+            else {
+                foreach($value as $key => $val) {
+                    $this->addParam($name,$val);
+                }
+            }
+        }
+
+        return $this;
+
+
 		$methodList = array(
 			"getParams" => "addParam",
 			"getFields" => "addField",
@@ -260,10 +274,25 @@ class ASolrCriteria extends SolrQuery {
 					$adder = $methodList[$methodName];
 
 					$result = $criteria->{$methodName}();
+                    $local = $this->{$methodName}();
 					if ($result === null) {
 						continue;
 					}
-					foreach($result as $key => $value) {
+                    foreach($result as $key => $value) {
+                        if ($local === null) {
+                            $local = array();
+                        }
+                        foreach($local as $localValue) {
+                            if ($localValue == $value) {
+                                continue 2;
+                            }
+                        }
+                        print_r($this->getParams());
+                        if ($methodName == "getSortFields") {
+
+
+                            continue;
+                        }
 						$this->{$adder}($value);
 					}
 				}
@@ -282,7 +311,7 @@ class ASolrCriteria extends SolrQuery {
 					if ($currentValue === null) {
 						$this->{$setter}($value);
 					}
-					else {
+					elseif ($currentValue != $value) {
 						$this->{$setter}($currentValue." AND ".$value);
 					}
 				}

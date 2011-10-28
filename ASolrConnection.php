@@ -5,6 +5,11 @@
  * @package packages.solr
  */
 class ASolrConnection extends CApplicationComponent {
+    /**
+     * Whether to profile solr queries or not
+     * @var boolean
+     */
+    public $enableProfiling = true;
 	/**
 	 * The solr client object
 	 * @var SolrClient
@@ -142,6 +147,7 @@ class ASolrConnection extends CApplicationComponent {
 		}
 		$c = new ASolrCriteria();
 		$c->mergeWith($criteria);
+
 		Yii::trace('Querying Solr: '.((string) $c),'packages.solr.ASolrConnection');
 		$this->_lastQueryResponse = new ASolrQueryResponse($this->rawSearch($c),$c,$modelClass);
 		return $this->_lastQueryResponse;
@@ -167,7 +173,15 @@ class ASolrConnection extends CApplicationComponent {
 	 * @return SolrObject the response from solr
 	 */
 	protected function rawSearch(ASolrCriteria $criteria) {
-		return $this->getClient()->query($criteria)->getResponse();
+        if ($this->enableProfiling) {
+            $profileTag = "packages.solr.AConnection.rawSearch(".$criteria->__toString().")";
+            Yii::beginProfile($profileTag);
+        }
+        $response = $this->getClient()->query($criteria)->getResponse();
+        if ($this->enableProfiling) {
+            Yii::endProfile($profileTag);
+        }
+        return $response;
 	}
 	/**
 	 * Gets the last received solr query response

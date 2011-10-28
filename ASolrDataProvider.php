@@ -86,9 +86,6 @@ class ASolrDataProvider extends CActiveDataProvider {
 		$data=$this->model->findAll($criteria);
 		$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
 
-		if ($pagination !== false) {
-			$pagination->setItemCount(count($data));
-		}
 		return $data;
 	}
 
