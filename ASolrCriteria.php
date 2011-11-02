@@ -233,6 +233,13 @@ class ASolrCriteria extends SolrQuery {
 	 */
 	public function mergeWith(ASolrCriteria $criteria) {
         foreach($criteria->getParams() as $name => $value) {
+            if ($value === null) {
+                continue;
+            }
+            if ($name == "q" && (($query = $this->getQuery()) != "")) {
+
+                $value = "(".$query.") AND (".$criteria->getQuery().")";
+            }
             if (!is_array($value)) {
                    $this->setParam($name,$value);
             }
@@ -243,80 +250,6 @@ class ASolrCriteria extends SolrQuery {
             }
         }
 
-        return $this;
-
-
-		$methodList = array(
-			"getParams" => "addParam",
-			"getFields" => "addField",
-			"getFacetDateFields" => "addFacetDateField",
-			"getFacetFields" => "addFacetField",
-			"getFacetQueries" => "addFacetQuery",
-			"getHighlightFields" => "addHighlightField",
-			"getMltFields" => "addMltField",
-			"getMltQueryFields" => "addMltQueryField",
-			"getFilterQueries" => "addFilterQuery",
-			"getSortFields" => "addSortField",
-			"getStatsFields" => "addStatsField",
-			"getStatsFacets" => "addStatsFacet",
-
-		);
-		$reflection = new ReflectionClass($criteria);
-		foreach($reflection->getMethods() as $method) {
-			$methodName = $method->getName();
-			if (substr($methodName,0,3) !== "get" || $method->getDeclaringClass()->name !== "SolrQuery") {
-				continue;
-			}
-			$setter = "s".substr($methodName,1);
-			if (!method_exists($criteria,$setter)) {
-				if (isset($methodList[$methodName])) {
-
-					$adder = $methodList[$methodName];
-
-					$result = $criteria->{$methodName}();
-                    $local = $this->{$methodName}();
-					if ($result === null) {
-						continue;
-					}
-                    foreach($result as $key => $value) {
-                        if ($local === null) {
-                            $local = array();
-                        }
-                        foreach($local as $localValue) {
-                            if ($localValue == $value) {
-                                continue 2;
-                            }
-                        }
-                        print_r($this->getParams());
-                        if ($methodName == "getSortFields") {
-
-
-                            continue;
-                        }
-						$this->{$adder}($value);
-					}
-				}
-			}
-			elseif ($method->getNumberOfRequiredParameters() == 0) {
-
-				$value = $criteria->{$methodName}();
-				if ($value === null) {
-					continue;
-				}
-				if ($methodName != "getQuery") {
-					$this->{$setter}($value);
-				}
-				else {
-					$currentValue = $this->{$methodName}();
-					if ($currentValue === null) {
-						$this->{$setter}($value);
-					}
-					elseif ($currentValue != $value) {
-						$this->{$setter}($currentValue." AND ".$value);
-					}
-				}
-			}
-		}
 		return $this;
 
 	}

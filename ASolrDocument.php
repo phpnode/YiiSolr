@@ -17,6 +17,13 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	 * @var ASolrConnection
 	 */
 	public static $solr;
+
+    /**
+     * The number of milliseconds to commit saves and updates within.
+     * @var integer
+     */
+    protected $_commitWithin = 0;
+
 	/**
 	 * The document attributes.
 	 * @var CAttributeCollection
@@ -1103,6 +1110,24 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	{
 		return $this->_solrResponse;
 	}
+
+    /**
+     * Sets the number of milliseconds to commit inserts and updates within.
+     * @param integer $commitWithin the number of milliseconds to commit within
+     */
+    public function setCommitWithin($commitWithin)
+    {
+        $this->_commitWithin = $commitWithin;
+    }
+
+    /**
+     * Gets the number of milliseconds to commit inserts and updates within.
+     * @return integer the number of milliseconds to commit within
+     */
+    public function getCommitWithin()
+    {
+        return $this->_commitWithin;
+    }
 
 }
 
