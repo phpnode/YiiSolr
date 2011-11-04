@@ -188,7 +188,7 @@ class ASolrCriteria extends SolrQuery {
 			{
 				$params[]=$value;
 			}
-			$condition=$column.':('.implode(' OR ',$params).')';
+			$condition=$column.':('.implode(' ',$params).')';
 		}
 		return $this->addCondition($condition,$operator);
 	}
@@ -232,62 +232,24 @@ class ASolrCriteria extends SolrQuery {
 	 * @return ASolrCriteria the merged criteria
 	 */
 	public function mergeWith(ASolrCriteria $criteria) {
-		$methodList = array(
-			"getParams" => "addParam",
-			"getFields" => "addField",
-			"getFacetDateFields" => "addFacetDateField",
-			"getFacetFields" => "addFacetField",
-			"getFacetQueries" => "addFacetQuery",
-			"getHighlightFields" => "addHighlightField",
-			"getMltFields" => "addMltField",
-			"getMltQueryFields" => "addMltQueryField",
-			"getFilterQueries" => "addFilterQuery",
-			"getSortFields" => "addSortField",
-			"getStatsFields" => "addStatsField",
-			"getStatsFacets" => "addStatsFacet",
+        foreach($criteria->getParams() as $name => $value) {
+            if ($value === null) {
+                continue;
+            }
+            if ($name == "q" && (($query = $this->getQuery()) != "")) {
 
-		);
-		$reflection = new ReflectionClass($criteria);
-		foreach($reflection->getMethods() as $method) {
-			$methodName = $method->getName();
-			if (substr($methodName,0,3) !== "get" || $method->getDeclaringClass()->name !== "SolrQuery") {
-				continue;
-			}
-			$setter = "s".substr($methodName,1);
-			if (!method_exists($criteria,$setter)) {
-				if (isset($methodList[$methodName])) {
+                $value = "(".$query.") AND (".$criteria->getQuery().")";
+            }
+            if (!is_array($value)) {
+                   $this->setParam($name,$value);
+            }
+            else {
+                foreach($value as $key => $val) {
+                    $this->addParam($name,$val);
+                }
+            }
+        }
 
-					$adder = $methodList[$methodName];
-
-					$result = $criteria->{$methodName}();
-					if ($result === null) {
-						continue;
-					}
-					foreach($result as $key => $value) {
-						$this->{$adder}($value);
-					}
-				}
-			}
-			elseif ($method->getNumberOfRequiredParameters() == 0) {
-
-				$value = $criteria->{$methodName}();
-				if ($value === null) {
-					continue;
-				}
-				if ($methodName != "getQuery") {
-					$this->{$setter}($value);
-				}
-				else {
-					$currentValue = $this->{$methodName}();
-					if ($currentValue === null) {
-						$this->{$setter}($value);
-					}
-					else {
-						$this->{$setter}($currentValue." AND ".$value);
-					}
-				}
-			}
-		}
 		return $this;
 
 	}
