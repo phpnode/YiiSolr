@@ -1,11 +1,50 @@
 #### Introduction
 
-A Yii extension that provides a wrapper for the pecl solr library (http://www.php.net/manual/en/book.solr.php).
-The wrapper allows
+A Yii package that provides a wrapper for the pecl solr library (http://www.php.net/manual/en/book.solr.php) to make fast searching with Yii really easy.
+The wrapper allows the use of familiar Yii constructs such as models, data providers etc with a solr index.
+
+#### Installation
+
+First install the pecl solr extension
+<pre>
+pecl install solr
+</pre>
+If this command fails, you may find it easier to compile the pecl solr extension from source.
+
+
+If you do not already have a packages directory and alias set up, first create a directory called "packages" in your application folder.
+Then add an alias to your main config, e.g.
+<pre>
+"aliases" => array(
+	"packages" => dirname(__DIR__)."/packages/",
+),
+...
+</pre>
+
+Now extract the files to packages/solr
+
+#### Running unit tests
+
+The unit tests depend on sqlite to provide the test data, please ensure the php PDO sqlite module is installed before continuing.
+
+The unit tests also depend on the example index that ships with solr.
+Go to your solr installation directory and in the "example" folder run
+<pre>
+java -jar start.jar
+</pre>
+This should start the solr server running on port 8983 by default. If you're using a different port, please configure it in the packages/solr/tests/common.php file.
+
+Now go to your application tests directory, usually protected/tests and run the following command:
+
+<pre>
+phpunit --verbose ../packages/solr/tests
+</pre>
+
+This will run the unit tests, if all went well they should all pass, otherwise please check your configuration.
 
 #### Configuring your solr connection
 
-Before we can use solr, we must configure a connection to use.
+Before we can use solr in our application, we must configure a connection to use.
 In the application config, add the following
 <pre>
 "components" => array(
