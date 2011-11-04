@@ -17,6 +17,13 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	 * @var ASolrConnection
 	 */
 	public static $solr;
+
+    /**
+     * The number of milliseconds to commit saves and updates within.
+     * @var integer
+     */
+    protected $_commitWithin = 0;
+
 	/**
 	 * The document attributes.
 	 * @var CAttributeCollection
@@ -50,6 +57,12 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	 * @var integer
 	 */
 	protected $_score;
+
+    /**
+     * The solr input document
+     * @var SolrInputDocument
+     */
+    protected $_inputDocument;
 
 	/**
 	 * The old primary key value
@@ -179,11 +192,11 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 		}
 		else
 		{
-			self::$solr=Yii::app()->getDb();
+			self::$solr=Yii::app()->solr;
 			if(self::$solr instanceof ASolrConnection)
 				return self::$solr;
 			else
-				throw new CDbException(Yii::t('yii','Solr Document requires a "solr" ASolrConnection application component.'));
+				throw new CException(Yii::t('yii','Solr Document requires a "solr" ASolrConnection application component.'));
 		}
 	}
 	/**
@@ -249,12 +262,73 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	 * @return SolrInputDocument the solr document
 	 */
 	public function getInputDocument() {
-		$document = new SolrInputDocument();
+        if ($this->_inputDocument !== null) {
+            return $this->_inputDocument;
+        }
+		$this->_inputDocument = new SolrInputDocument();
 		foreach($this->attributeNames() as $attribute) {
-			$document->addField($attribute,$this->{$attribute});
+            if ($this->{$attribute} !== null) {
+			    $this->_inputDocument->addField($attribute,$this->prepareAttribute($attribute));
+            }
 		}
-		return $document;
+		return $this->_inputDocument;
 	}
+    /**
+     * Gets an array of mapping rules for this solr index.
+     * Child classes should override this method to specify solr types for individual fields.
+     * E.g.
+     * <pre>
+     * array(
+     *  "fieldName" => "string",
+     *  "someDateField" => "date",
+     * );
+     * </pre>
+     * @return array an array of mapping rules for this solr index
+     */
+    public function attributeMapping() {
+        return array();
+    }
+    /**
+     * Prepares an attribute to be inputted into solr
+     * @param string $attribute the name of the attribute
+     * @return mixed the prepared value to insert into solr
+     */
+    protected function prepareAttribute($attribute) {
+        $mapping = $this->attributeMapping();
+        if (!isset($mapping[$attribute])) {
+            return $this->{$attribute};
+        }
+        if (is_array($mapping[$attribute])) {
+            if (!isset($mapping[$attribute]['type'])) {
+                return $this->{$attribute};
+            }
+            $type = $mapping[$attribute]['type'];
+        }
+        else {
+            $type = $mapping[$attribute];
+        }
+        switch (strtolower($type)) {
+            case "date":
+                $date =  $this->createSolrDateTime(is_int($this->{$attribute}) ? $this->{$attribute} : strtotime($this->{$attribute}));
+                return $date;
+                break;
+            default:
+                return $this->{$attribute};
+        }
+    }
+    /**
+     * Formats a unix timestamp in solr date format
+     * @param integer $time the unix timestamp
+     * @return string the solr formatted timestamp
+     */
+    public function createSolrDateTime($time) {
+        $defaultTZ = date_default_timezone_get();
+        date_default_timezone_set("UTC");
+        $date = date("Y-m-d\TH:i:s\Z",$time);
+        date_default_timezone_set($defaultTZ);
+        return $date;
+    }
+
 	/**
 	 * Returns a property value or an event handler list by property or event name.
 	 * This method overrides the parent implementation by returning
@@ -1037,6 +1111,24 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 	{
 		return $this->_solrResponse;
 	}
+
+    /**
+     * Sets the number of milliseconds to commit inserts and updates within.
+     * @param integer $commitWithin the number of milliseconds to commit within
+     */
+    public function setCommitWithin($commitWithin)
+    {
+        $this->_commitWithin = $commitWithin;
+    }
+
+    /**
+     * Gets the number of milliseconds to commit inserts and updates within.
+     * @return integer the number of milliseconds to commit within
+     */
+    public function getCommitWithin()
+    {
+        return $this->_commitWithin;
+    }
 
 }
 
