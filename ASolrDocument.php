@@ -11,7 +11,6 @@
  * @package packages.solr
  */
 class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess {
-
 	/**
 	 * The solr connection
 	 * @var ASolrConnection
