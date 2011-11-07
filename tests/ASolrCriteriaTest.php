@@ -37,8 +37,8 @@ class ASolrCriteriaTest extends CTestCase {
 		$criteria2 = new ASolrCriteria();
 		$criteria2->addField("name");
 		$criteria2->query = "id:2";
-        $criteria->addFilterQuery("test:1");
-        $criteria2->addFilterQuery("test:2");
+		$criteria->addFilterQuery("test:1");
+		$criteria2->addFilterQuery("test:2");
 		$criteria->mergeWith($criteria2);
 		$this->assertTrue(in_array("name",$criteria->getFields()));
 		$this->assertEquals("(id:1) AND (id:2)",$criteria->query);
