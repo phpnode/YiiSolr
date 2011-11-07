@@ -5,11 +5,11 @@
  * @package packages.solr
  */
 class ASolrConnection extends CApplicationComponent {
-    /**
-     * Whether to profile solr queries or not
-     * @var boolean
-     */
-    public $enableProfiling = true;
+	/**
+	 * Whether to profile solr queries or not
+	 * @var boolean
+	 */
+	public $enableProfiling = true;
 	/**
 	 * The solr client object
 	 * @var SolrClient
@@ -84,20 +84,20 @@ class ASolrConnection extends CApplicationComponent {
 	/**
 	 * Adds a document to the solr index
 	 * @param ASolrDocument|SolrInputDocument $document the document to add to the index
-     * @param integer $commitWithin the number of milliseconds to commit within after indexing the document
+	 * @param integer $commitWithin the number of milliseconds to commit within after indexing the document
 	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index($document, $commitWithin = null) {
 		if ($document instanceof ASolrDocument) {
-            if ($commitWithin === null && $document->getCommitWithin() > 0) {
-                $commitWithin = $document->getCommitWithin();
-            }
-            $document = $document->getInputDocument();
+			if ($commitWithin === null && $document->getCommitWithin() > 0) {
+				$commitWithin = $document->getCommitWithin();
+			}
+			$document = $document->getInputDocument();
 		}
 		elseif (is_array($document) || $document instanceof Traversable) {
-            if ($commitWithin === null) {
-                $commitWithin = 0;
-            }
+			if ($commitWithin === null) {
+				$commitWithin = 0;
+			}
 			$document = (array) $document;
 			foreach($document as $key => $value) {
 				if ($value instanceof ASolrDocument) {
@@ -107,9 +107,9 @@ class ASolrConnection extends CApplicationComponent {
 			Yii::trace('Adding '.count($document)." documents to the solr index",'packages.solr.ASolrConnection');
 			return $this->getClient()->addDocuments($document,false, $commitWithin)->success();
 		}
-        if ($commitWithin === null) {
-            $commitWithin = 0;
-        }
+		if ($commitWithin === null) {
+			$commitWithin = 0;
+		}
 		Yii::trace('Adding 1 document to the solr index','packages.solr.ASolrConnection');
 		$response = $this->getClient()->addDocument($document, false,$commitWithin);
 		return $response->success();
@@ -183,15 +183,15 @@ class ASolrConnection extends CApplicationComponent {
 	 * @return SolrObject the response from solr
 	 */
 	protected function rawSearch(ASolrCriteria $criteria) {
-        if ($this->enableProfiling) {
-            $profileTag = "packages.solr.AConnection.rawSearch(".$criteria->__toString().")";
-            Yii::beginProfile($profileTag);
-        }
-        $response = $this->getClient()->query($criteria)->getResponse();
-        if ($this->enableProfiling) {
-            Yii::endProfile($profileTag);
-        }
-        return $response;
+		if ($this->enableProfiling) {
+			$profileTag = "packages.solr.AConnection.rawSearch(".$criteria->__toString().")";
+			Yii::beginProfile($profileTag);
+		}
+		$response = $this->getClient()->query($criteria)->getResponse();
+		if ($this->enableProfiling) {
+			Yii::endProfile($profileTag);
+		}
+		return $response;
 	}
 	/**
 	 * Gets the last received solr query response

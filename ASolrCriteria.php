@@ -232,23 +232,23 @@ class ASolrCriteria extends SolrQuery {
 	 * @return ASolrCriteria the merged criteria
 	 */
 	public function mergeWith(ASolrCriteria $criteria) {
-        foreach($criteria->getParams() as $name => $value) {
-            if ($value === null) {
-                continue;
-            }
-            if ($name == "q" && (($query = $this->getQuery()) != "")) {
+		foreach($criteria->getParams() as $name => $value) {
+			if ($value === null) {
+				continue;
+			}
+			if ($name == "q" && (($query = $this->getQuery()) != "")) {
 
-                $value = "(".$query.") AND (".$criteria->getQuery().")";
-            }
-            if (!is_array($value)) {
-                   $this->setParam($name,$value);
-            }
-            else {
-                foreach($value as $key => $val) {
-                    $this->addParam($name,$val);
-                }
-            }
-        }
+				$value = "(".$query.") AND (".$criteria->getQuery().")";
+			}
+			if (!is_array($value)) {
+				   $this->setParam($name,$value);
+			}
+			else {
+				foreach($value as $key => $val) {
+					$this->addParam($name,$val);
+				}
+			}
+		}
 
 		return $this;
 
