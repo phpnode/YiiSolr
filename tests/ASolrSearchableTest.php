@@ -13,7 +13,7 @@ class ASolrSearchableTest extends CTestCase {
 		$model = ExampleSolrActiveRecord::model()->find();
 		$behavior = $model->asa("ASolrSearchable");
 		$attributeNames = array("id","name","author","popularity","description");
-		$this->assertEquals($attributeNames,$behavior->getAttributes());
+		$this->assertEquals(array_combine($attributeNames,$attributeNames),$behavior->getAttributes());
 
 		$solrDocument = $behavior->getSolrDocument();
 		$this->assertTrue($solrDocument instanceof ASolrDocument);

@@ -75,7 +75,14 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 */
 	public function setAttributes($attributes)
 	{
-		$this->_attributes = $attributes;
+        $a = array();
+        foreach($attributes as $key => $value) {
+            if (is_integer($key)) {
+                $key = $value;
+            }
+            $a[$key] = $value;
+        }
+		$this->_attributes = $a;
 	}
 
 	/**
@@ -85,7 +92,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	public function getAttributes()
 	{
 		if ($this->_attributes === null) {
-			$this->_attributes = $this->getOwner()->attributeNames();
+            $names = $this->getOwner()->attributeNames();
+			$this->_attributes = array_combine($names,$names);
 		}
 		return $this->_attributes;
 	}
@@ -95,18 +103,18 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 */
 	protected function resolveAttributes() {
 		$names = array();
-		foreach($this->getAttributes() as $attribute) {
-			if (!strstr($attribute,".")) {
-				$names[$attribute] = array($this->getOwner(),$attribute);
+		foreach($this->getAttributes() as $modelAttribute => $docAttribute) {
+			if (!strstr($modelAttribute,".")) {
+				$names[$modelAttribute] = array($this->getOwner(),$modelAttribute);
 				continue;
 			}
 			$reference = $this->getOwner();
-			$pointers = explode(".",$attribute);
+			$pointers = explode(".",$modelAttribute);
 			$lastItem = array_pop($pointers);
 			foreach($pointers as $pointer) {
 				$reference = $reference->{$pointer};
 			}
-			$names[$attribute] = array($reference, $lastItem);
+			$names[$modelAttribute] = array($reference, $lastItem);
 		}
 		return $names;
 	}
@@ -122,6 +130,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @return mixed
 	 */
 	protected function resolveAttributeName($attributeName) {
+        $attributes = $this->getAttributes();
+        $attributeName = $attributes[$attributeName];
 		return str_replace(".","__",$attributeName);
 	}
 
@@ -258,14 +268,14 @@ class ASolrSearchable extends CActiveRecordBehavior {
 		$relations = $this->getOwner()->getMetaData()->relations;
 		$attributes = array();
 		$relationAttributes = array();
-		foreach($this->getAttributes() as $attribute) {
-			$resolved = $this->resolveAttributeName($attribute);
-			if (!strstr($attribute,".")) {
-				$attributes[$attribute] = $document->{$resolved};
+		foreach($this->getAttributes() as $modelAttribute => $docAttribute) {
+			$resolved = $this->resolveAttributeName($modelAttribute);
+			if (!strstr($modelAttribute,".")) {
+				$attributes[$modelAttribute] = $document->{$resolved};
 				continue;
 			}
 			$reference = &$relationAttributes;
-			$pointers = explode(".",$attribute);
+			$pointers = explode(".",$modelAttribute);
 			$last = array_pop($pointers);
 			foreach($pointers as $pointer) {
 				if (!isset($reference[$pointer])) {
