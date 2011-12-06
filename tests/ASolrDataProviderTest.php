@@ -58,9 +58,9 @@ class ASolrDataProviderTest extends CTestCase {
 	public function tearDown() {
 		foreach($this->fixtureData() as $attributes) {
 			$doc = ASolrDocument::model()->findByAttributes($attributes);
-            if (is_object($doc)) {
-			    $this->assertTrue($doc->delete());
-            }
+			if (is_object($doc)) {
+				$this->assertTrue($doc->delete());
+			}
 		}
 		$this->getConnection()->commit();
 	}

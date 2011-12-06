@@ -75,13 +75,13 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 */
 	public function setAttributes($attributes)
 	{
-        $a = array();
-        foreach($attributes as $key => $value) {
-            if (is_integer($key)) {
-                $key = $value;
-            }
-            $a[$key] = $value;
-        }
+		$a = array();
+		foreach($attributes as $key => $value) {
+			if (is_integer($key)) {
+				$key = $value;
+			}
+			$a[$key] = $value;
+		}
 		$this->_attributes = $a;
 	}
 
@@ -92,7 +92,7 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	public function getAttributes()
 	{
 		if ($this->_attributes === null) {
-            $names = $this->getOwner()->attributeNames();
+			$names = $this->getOwner()->attributeNames();
 			$this->_attributes = array_combine($names,$names);
 		}
 		return $this->_attributes;
@@ -130,8 +130,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @return mixed
 	 */
 	protected function resolveAttributeName($attributeName) {
-        $attributes = $this->getAttributes();
-        $attributeName = $attributes[$attributeName];
+		$attributes = $this->getAttributes();
+		$attributeName = $attributes[$attributeName];
 		return str_replace(".","__",$attributeName);
 	}
 

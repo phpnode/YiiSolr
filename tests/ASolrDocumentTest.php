@@ -101,42 +101,42 @@ class ASolrDocumentTest extends CTestCase {
 	}
 
 
-    /**
-     * Tests the find methods, returning scores
-     */
-    public function testFindWithScores() {
-        $connection = new ASolrConnection();
-        $connection->clientOptions->hostname = SOLR_HOSTNAME;
-        $connection->clientOptions->port = SOLR_PORT;
-        $connection->clientOptions->path = SOLR_PATH;
-        ASolrDocument::$solr = $connection;
-        $pkList = array();
-        foreach($this->fixtureData() as $attributes) {
-            $criteria = new ASolrCriteria;
-            $criteria->query = "id:".$attributes['id'];
-            $criteria->withScores();
-            $doc = ASolrDocument::model()->find($criteria);
-            $this->assertTrue(is_object($doc));
-            $this->assertTrue($doc instanceof ASolrDocument);
-            $this->assertGreaterThan(0, $doc->getScore());
-            foreach($attributes as $attribute => $value) {
-                $this->assertEquals($value,$doc->{$attribute});
-            }
-            $pkList[$doc->getPrimaryKey()] = $attributes;
-        }
-        $criteria = new ASolrCriteria();
-        $criteria->limit = 100;
-        $criteria->addInCondition("id",array_keys($pkList));
-        $criteria->withScores();
-        $models = ASolrDocument::model()->findAll($criteria);
-        $this->assertEquals(count($pkList),count($models));
-        foreach($models as $doc) {
-            $this->assertGreaterThan(0, $doc->getScore());
-            foreach($pkList[$doc->getPrimaryKey()] as $attribute => $value) {
-                $this->assertEquals($value,$doc->{$attribute});
-            }
-        }
-    }
+	/**
+	 * Tests the find methods, returning scores
+	 */
+	public function testFindWithScores() {
+		$connection = new ASolrConnection();
+		$connection->clientOptions->hostname = SOLR_HOSTNAME;
+		$connection->clientOptions->port = SOLR_PORT;
+		$connection->clientOptions->path = SOLR_PATH;
+		ASolrDocument::$solr = $connection;
+		$pkList = array();
+		foreach($this->fixtureData() as $attributes) {
+			$criteria = new ASolrCriteria;
+			$criteria->query = "id:".$attributes['id'];
+			$criteria->withScores();
+			$doc = ASolrDocument::model()->find($criteria);
+			$this->assertTrue(is_object($doc));
+			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertGreaterThan(0, $doc->getScore());
+			foreach($attributes as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+			$pkList[$doc->getPrimaryKey()] = $attributes;
+		}
+		$criteria = new ASolrCriteria();
+		$criteria->limit = 100;
+		$criteria->addInCondition("id",array_keys($pkList));
+		$criteria->withScores();
+		$models = ASolrDocument::model()->findAll($criteria);
+		$this->assertEquals(count($pkList),count($models));
+		foreach($models as $doc) {
+			$this->assertGreaterThan(0, $doc->getScore());
+			foreach($pkList[$doc->getPrimaryKey()] as $attribute => $value) {
+				$this->assertEquals($value,$doc->{$attribute});
+			}
+		}
+	}
 
 
 	/**
