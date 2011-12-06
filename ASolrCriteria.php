@@ -18,6 +18,15 @@ class ASolrCriteria extends SolrQuery {
 			}
 		}
 	}
+    /**
+     * Return the scores along with the results
+     * @return ASolrCriteria $this with the score field added
+     */
+    public function withScores() {
+        $this->addField("score");
+        return $this;
+    }
+
 	/**
 	 * Returns a property value based on its name.
 	 * Do not call this method. This is a PHP magic method that we override

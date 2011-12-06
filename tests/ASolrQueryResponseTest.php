@@ -27,6 +27,7 @@ class ASolrQueryResponseTest extends CTestCase {
 		$this->assertEquals(3,$results->count());
 		foreach($results as $n => $result) {
 			$this->assertEquals("test item ".($n + 1),$result->name);
+            $this->assertEquals(1.0, $result->getScore());
 		}
 	}
 	/**
@@ -55,16 +56,19 @@ class ASolrQueryResponseTest extends CTestCase {
 						"id" => 1,
 						"name" => "test item 1",
 						"popularity" => 1,
+                        "score" => 1.0,
 					),
 					(object) array(
 						"id" => 2,
 						"name" => "test item 2",
 						"popularity" => 2,
+                        "score" => 1.0,
 					),
 					(object) array(
 						"id" => 3,
 						"name" => "test item 3",
 						"popularity" => 3,
+                        "score" => 1.0,
 					)
 				)
 			),

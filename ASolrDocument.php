@@ -433,7 +433,7 @@ class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess 
 			$record=$this->instantiate($attributes);
 			$record->setScenario('update');
 			$record->init();
-			foreach($attributes as $name=>$value) {
+            foreach($attributes as $name=>$value) {
 				$record->$name=$value;
 			}
 			$record->_pk=$record->getPrimaryKey();
