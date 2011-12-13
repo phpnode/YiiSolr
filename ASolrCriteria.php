@@ -161,10 +161,7 @@ class ASolrCriteria extends SolrQuery {
 				return $this;
 			$condition='('.implode(') '.$operator.' (',$condition).')';
 		}
-		if($this->getQuery()===null)
-			$this->setQuery($condition);
-		else
-			$this->setQuery('('.$this->getQuery().') '.$operator.' ('.$condition.')');
+        $this->addFilterQuery($condition);
 		return $this;
 	}
 

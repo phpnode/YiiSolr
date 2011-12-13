@@ -10,7 +10,7 @@
  * @author Charles Pick / PeoplePerHour.com
  * @package packages.solr
  */
-class ASolrDocument extends CFormModel implements IteratorAggregate,ArrayAccess {
+class ASolrDocument extends CFormModel {
 	/**
 	 * The solr connection
 	 * @var ASolrConnection
