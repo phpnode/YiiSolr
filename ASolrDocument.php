@@ -267,7 +267,14 @@ class ASolrDocument extends CFormModel {
 		$this->_inputDocument = new SolrInputDocument();
 		foreach($this->attributeNames() as $attribute) {
 			if ($this->{$attribute} !== null) {
-				$this->_inputDocument->addField($attribute,$this->prepareAttribute($attribute));
+                if (is_array($this->{$attribute})) {
+                    foreach($this->{$attribute} as $value) {
+                        $this->_inputDocument->addField($attribute,$value);
+                    }
+                }
+                else {
+				    $this->_inputDocument->addField($attribute,$this->prepareAttribute($attribute));
+                }
 			}
 		}
 		return $this->_inputDocument;

@@ -53,7 +53,7 @@ class ASolrDocumentTest extends CTestCase {
 			$doc->setAttributes($attributes); // should fail because of massive assignment on unsafe attributes
 			$this->assertEquals(array(),$doc->getAttributes());
 			$doc->setAttributes($attributes,false);
-			$this->assertEquals(3,count($doc->getAttributes()));
+			$this->assertEquals(4,count($doc->getAttributes()));
 			$this->assertTrue($doc->save());
 		}
 		$connection->commit();
@@ -90,6 +90,7 @@ class ASolrDocumentTest extends CTestCase {
 		}
 		$criteria = new ASolrCriteria();
 		$criteria->limit = 100;
+        $criteria->query = "*:*";
 		$criteria->addInCondition("id",array_keys($pkList));
 		$models = ASolrDocument::model()->findAll($criteria);
 		$this->assertEquals(count($pkList),count($models));
@@ -125,6 +126,7 @@ class ASolrDocumentTest extends CTestCase {
 			$pkList[$doc->getPrimaryKey()] = $attributes;
 		}
 		$criteria = new ASolrCriteria();
+        $criteria->query = "*:*";
 		$criteria->limit = 100;
 		$criteria->addInCondition("id",array_keys($pkList));
 		$criteria->withScores();
@@ -179,7 +181,9 @@ class ASolrDocumentTest extends CTestCase {
 		$connection->clientOptions->path = SOLR_PATH;
 		ASolrDocument::$solr = $connection;
 		foreach($this->fixtureData() as $attributes) {
-			$doc = ASolrDocument::model()->findByAttributes($attributes);
+            $attr = $attributes;
+            unset($attr['links']); // cannot search with arrays
+			$doc = ASolrDocument::model()->findByAttributes($attr);
 			$this->assertTrue(is_object($doc));
 			$this->assertTrue($doc instanceof ASolrDocument);
 			foreach($attributes as $attribute => $value) {
@@ -187,7 +191,9 @@ class ASolrDocumentTest extends CTestCase {
 			}
 		}
 		foreach($this->fixtureData() as $attributes) {
-			$models = ASolrDocument::model()->findAllByAttributes($attributes);
+            $attr = $attributes;
+            unset($attr['links']); // cannot search with arrays
+			$models = ASolrDocument::model()->findAllByAttributes($attr);
 			$this->assertEquals(1,count($models));
 			$doc = array_shift($models);
 			$this->assertTrue(is_object($doc));
@@ -230,7 +236,11 @@ class ASolrDocumentTest extends CTestCase {
 			$rows[] = array(
 				"id" => 400 + $i,
 				"name" => "Test Item ".$i,
-				"popularity" => $i
+				"popularity" => $i,
+                "links" => array(
+                    "http://www.google.com/",
+                    "http://www.youtube.com/",
+                )
 			);
 		}
 		return $rows;
