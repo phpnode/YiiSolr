@@ -94,7 +94,11 @@ class ASolrDataProvider extends CActiveDataProvider {
 				foreach($results as $item /* @var ASolrDocument $item */) {
 					$ids[] = $item->getPrimaryKey();
 				}
-				$data = $this->model->findAllByPk($ids);
+				$c = new CDbCriteria();
+				$fields = $ids;
+				array_unshift($fields,$this->model->getTableAlias().'.'.$this->model->getPrimaryKey());
+				$c->order = 'FIELD('.implode(',',$fields).')';
+				$data = $this->model->findAllByPk($ids,$c);
 			}
 			else {
 				$data = $this->model->findAllBySolr($criteria);
