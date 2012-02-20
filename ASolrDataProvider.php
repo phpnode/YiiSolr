@@ -77,15 +77,15 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$pagination->setItemCount($this->getTotalItemCount());
 			$pagination->applyLimit($criteria);
 		}
-        if ($this->model instanceof CActiveRecord) {
-            // this should be a model with ASolrSearchable attached
-            $data = $this->model->findAllBySolr($criteria);
-            $this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
-        }
-        else {
-		    $data=$this->model->findAll($criteria);
-            $this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
-        }
+		if ($this->model instanceof CActiveRecord) {
+			// this should be a model with ASolrSearchable attached
+			$data = $this->model->findAllBySolr($criteria);
+			$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
+		}
+		else {
+			$data=$this->model->findAll($criteria);
+			$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
+		}
 
 
 		return $data;
@@ -97,13 +97,13 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 */
 	protected function calculateTotalItemCount()
 	{
-        if ($this->model instanceof CActiveRecord) {
-            // this should be a model with ASolrSearchable attached
-            return $this->model->getSolrDocument()->count($this->getCriteria());
-        }
-        else {
-	    	return $this->model->count($this->getCriteria());
-        }
+		if ($this->model instanceof CActiveRecord) {
+			// this should be a model with ASolrSearchable attached
+			return $this->model->getSolrDocument()->count($this->getCriteria());
+		}
+		else {
+			return $this->model->count($this->getCriteria());
+		}
 	}
 
 	/**
