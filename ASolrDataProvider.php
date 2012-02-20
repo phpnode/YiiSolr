@@ -10,6 +10,14 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 * @var string
 	 */
 	public $keyAttribute = "position";
+	/**
+	 * Whether to load model data from the database after searching with solr.
+	 * When this is true the data provider will populate the relevant models
+	 * in the solr search results from the database rather than solr.
+	 * Defaults to false.
+	 * @var boolean
+	 */
+	public $loadFromDB = false;
 
 	/**
 	 * Holds the response from solr
@@ -79,8 +87,19 @@ class ASolrDataProvider extends CActiveDataProvider {
 		}
 		if ($this->model instanceof CActiveRecord) {
 			// this should be a model with ASolrSearchable attached
-			$data = $this->model->findAllBySolr($criteria);
-			$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
+			if ($this->loadFromDB) {
+				$results = $this->model->getSolrDocument()->findAll($criteria);
+				$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
+				$ids = array();
+				foreach($results as $item /* @var ASolrDocument $item */) {
+					$ids[] = $item->getPrimaryKey();
+				}
+				$data = $this->model->findAllByPk($ids);
+			}
+			else {
+				$data = $this->model->findAllBySolr($criteria);
+				$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
+			}
 		}
 		else {
 			$data=$this->model->findAll($criteria);
