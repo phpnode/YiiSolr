@@ -22,6 +22,9 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 * @var ASolrCriteria
 	 */
 	protected $_criteria;
+
+	private $_sort;
+
 	/**
 	 * Constructor.
 	 * @param mixed $modelClass the model class (e.g. 'Post') or the model finder instance
@@ -68,6 +71,40 @@ class ASolrDataProvider extends CActiveDataProvider {
 	{
 		$this->_criteria=$value instanceof ASolrCriteria ? $value : new ASolrCriteria($value);
 	}
+
+	/**
+	 * Returns the sort object.
+	 * @return CSort the sorting object. If this is false, it means the sorting is disabled.
+	 */
+	public function getSort()
+	{
+		if($this->_sort===null)
+		{
+			$this->_sort=new ASolrSort;
+			if(($id=$this->getId())!='')
+				$this->_sort->sortVar=$id.'_sort';
+			$this->_sort->modelClass=$this->modelClass;
+		}
+		return $this->_sort;
+	}
+
+	/**
+	 * Sets the sorting for this data provider.
+	 * @param mixed $value the sorting to be used by this data provider. This could be a {@link CSort} object
+	 * or an array used to configure the sorting object. If this is false, it means the sorting should be disabled.
+	 */
+	public function setSort($value)
+	{
+		if(is_array($value))
+		{
+			$sort=$this->getSort();
+			foreach($value as $k=>$v)
+				$sort->$k=$v;
+		}
+		else
+			$this->_sort=$value;
+	}
+
 	/**
 	 * Fetches the data from the persistent data storage.
 	 * @return array list of data items

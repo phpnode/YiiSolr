@@ -27,6 +27,16 @@ class ASolrCriteriaTest extends CTestCase {
 		$criteria->offset = 20;
 		$this->assertEquals(20,$criteria->getStart());
 	}
+
+	/**
+	 * Gets the getOrder() and setOrder() methods
+	 */
+	public function testOrder() {
+		$criteria = new ASolrCriteria();
+		$criteria->order = "id DESC, other_field ASC, somethingElse";
+		$this->assertEquals("id desc, other_field asc, somethingElse asc",$criteria->order);
+	}
+
 	/**
 	 * Tests the mergeWith() method
 	 */
