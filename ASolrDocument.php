@@ -130,7 +130,15 @@ class ASolrDocument extends CFormModel {
 	public function attributeDefaults() {
 		return array();
 	}
-
+	/**
+	 * Checks whether this AR has the named attribute
+	 * @param string $name attribute name
+	 * @return boolean whether this AR has the named attribute (table column).
+	 */
+	public function hasAttribute($name)
+	{
+		return in_array($name, $this->attributeNames());
+	}
 	/**
 	 * Constructor.
 	 * @param string $scenario the scenario name
