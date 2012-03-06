@@ -122,6 +122,10 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$pagination->setItemCount($this->getTotalItemCount());
 			$pagination->applyLimit($criteria);
 		}
+		
+		if(($sort=$this->getSort())!==false)
+			$sort->applyOrder($criteria);
+
 		if ($this->model instanceof CActiveRecord) {
 			// this should be a model with ASolrSearchable attached
 			if ($this->loadFromDB) {
