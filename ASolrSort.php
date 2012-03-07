@@ -62,7 +62,9 @@ class ASolrSort extends CSort
 					$dir=$descending ? 'desc' : 'asc';
 					if(isset($definition[$dir]) && is_array($definition[$dir]))
 						foreach($definition[$dir] as $name=>$value)
-							$critera->setParam($name,$value);
+						{
+							$criteria->setParam($name,$value);
+						}
 					else
 						$orders[]=isset($definition[$dir]) ? $definition[$dir] : $attribute.($descending ? ' DESC':'');
 				}
