@@ -119,10 +119,10 @@ class ASolrDataProvider extends CActiveDataProvider {
 
 		if(($pagination=$this->getPagination())!==false)
 		{
-			$pagination->setItemCount($this->getTotalItemCount());
+			$pagination->setItemCount(999999999); // set to an unreasonably high value to save an extra request
 			$pagination->applyLimit($criteria);
 		}
-		
+
 		if(($sort=$this->getSort())!==false)
 			$sort->applyOrder($criteria);
 
@@ -132,8 +132,8 @@ class ASolrDataProvider extends CActiveDataProvider {
 				$results = $this->model->getSolrDocument()->findAll($criteria);
 				$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
 				$ids = array();
-				foreach($results as $item /* @var ASolrDocument $item */) {
-					$ids[] = $item->getPrimaryKey();
+				foreach($results as $n => $item /* @var ASolrDocument $item */) {
+					$ids[$n] = $item->getPrimaryKey();
 				}
 				if (!empty($ids)){
     				$c = new CDbCriteria();
@@ -141,6 +141,10 @@ class ASolrDataProvider extends CActiveDataProvider {
     				array_unshift($fields,$this->model->getTableAlias().'.'.$this->model->getMetaData()->tableSchema->primaryKey);
     				$c->order = 'FIELD('.implode(',',$fields).')';// keep the order of objects as it is from solr's results
     				$data = $this->model->findAllByPk($ids,$c);
+                    $ids = array_flip($ids);
+                    foreach($data as $n => $model) {
+                        $model->setSolrDocument($results[$ids[$model->getPrimaryKey()]]);
+                    }
 				}else {
 				    $data = array(); // prevent any errors
 				}
@@ -154,7 +158,9 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$data=$this->model->findAll($criteria);
 			$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
 		}
-
+        if ($pagination) {
+            $pagination->setItemCount($this->_solrQueryResponse->getResults()->total);
+        }
 
 		return $data;
 	}
@@ -219,4 +225,13 @@ class ASolrDataProvider extends CActiveDataProvider {
 		}
 		return $this->_solrQueryResponse->getRangeFacets();
 	}
+
+    /**
+     * Gets the solr query response
+     * @return ASolrQueryResponse the response from solr
+     */
+    public function getSolrQueryResponse()
+    {
+        return $this->_solrQueryResponse;
+    }
 }

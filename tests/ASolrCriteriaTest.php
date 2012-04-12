@@ -34,7 +34,7 @@ class ASolrCriteriaTest extends CTestCase {
 	public function testOrder() {
 		$criteria = new ASolrCriteria();
 		$criteria->order = "id DESC, other_field ASC, somethingElse";
-		$this->assertEquals("id desc, other_field asc, somethingElse asc",$criteria->order);
+		$this->assertEquals("id DESC, other_field ASC, somethingElse",$criteria->getParam("sort"));
 	}
 
 	/**

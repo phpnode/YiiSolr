@@ -196,6 +196,28 @@ class ASolrCriteria extends SolrQuery {
 		return $this;
 	}
 
+    /**
+     * Adds a between condition to the {@link query}
+     *
+     * The new between condition and the existing condition will be concatenated via
+     * the specified operator which defaults to 'AND'.
+     * If one or both values are empty then the condition is not added to the existing condition.
+     * This method handles the case when the existing condition is empty.
+     * After calling this method, the {@link condition} property will be modified.
+     * @param string $column the name of the column to search between.
+     * @param string $valueStart the beginning value to start the between search.
+     * @param string $valueEnd the ending value to end the between search.
+     * Defaults to 'AND'.
+     * @return ASolrCriteria the criteria object itself
+     */
+    public function addBetweenCondition($column,$valueStart,$valueEnd)
+    {
+        if($valueStart==='' || $valueEnd==='')
+            return $this;
+
+        $this->addFilterQuery($column.":[".$valueStart." TO ".$valueEnd."]");
+        return $this;
+    }
 
 	/**
 	 * Appends an IN condition to the existing {@link query}.
@@ -286,8 +308,15 @@ class ASolrCriteria extends SolrQuery {
 				}
 			}
 		}
-
 		return $this;
-
 	}
+
+    /**
+     * Escape a string and remove solr special characters
+     * @param string $string the string to escape
+     * @return string the escaped string
+     */
+    public function escape($string) {
+        return addcslashes($string, ' + - & | ! ( ) { } [ ] ^ \' _ \" ~ * ? : \ ');
+    }
 }
