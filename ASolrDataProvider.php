@@ -30,6 +30,9 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 * @var ASolrCriteria
 	 */
 	protected $_criteria;
+
+	private $_sort;
+
 	/**
 	 * Constructor.
 	 * @param mixed $modelClass the model class (e.g. 'Post') or the model finder instance
@@ -71,6 +74,40 @@ class ASolrDataProvider extends CActiveDataProvider {
 	{
 		$this->_criteria=$value instanceof ASolrCriteria ? $value : new ASolrCriteria($value);
 	}
+
+	/**
+	 * Returns the sort object.
+	 * @return CSort the sorting object. If this is false, it means the sorting is disabled.
+	 */
+	public function getSort()
+	{
+		if($this->_sort===null)
+		{
+			$this->_sort=new ASolrSort;
+			if(($id=$this->getId())!='')
+				$this->_sort->sortVar=$id.'_sort';
+			$this->_sort->modelClass=$this->modelClass;
+		}
+		return $this->_sort;
+	}
+
+	/**
+	 * Sets the sorting for this data provider.
+	 * @param mixed $value the sorting to be used by this data provider. This could be a {@link CSort} object
+	 * or an array used to configure the sorting object. If this is false, it means the sorting should be disabled.
+	 */
+	public function setSort($value)
+	{
+		if(is_array($value))
+		{
+			$sort=$this->getSort();
+			foreach($value as $k=>$v)
+				$sort->$k=$v;
+		}
+		else
+			$this->_sort=$value;
+	}
+
 	/**
 	 * Fetches the data from the persistent data storage.
 	 * @return array list of data items
@@ -82,17 +119,21 @@ class ASolrDataProvider extends CActiveDataProvider {
 
 		if(($pagination=$this->getPagination())!==false)
 		{
-			$pagination->setItemCount($this->getTotalItemCount());
+			$pagination->setItemCount(999999999); // set to an unreasonably high value to save an extra request
 			$pagination->applyLimit($criteria);
 		}
+
+		if(($sort=$this->getSort())!==false)
+			$sort->applyOrder($criteria);
+
 		if ($this->model instanceof CActiveRecord) {
 			// this should be a model with ASolrSearchable attached
 			if ($this->loadFromDB) {
 				$results = $this->model->getSolrDocument()->findAll($criteria);
 				$this->_solrQueryResponse = $this->model->getSolrDocument()->getSolrConnection()->getLastQueryResponse();
 				$ids = array();
-				foreach($results as $item /* @var ASolrDocument $item */) {
-					$ids[] = $item->getPrimaryKey();
+				foreach($results as $n => $item /* @var ASolrDocument $item */) {
+					$ids[$n] = $item->getPrimaryKey();
 				}
 				if (!empty($ids)){
     				$c = new CDbCriteria();
@@ -100,6 +141,10 @@ class ASolrDataProvider extends CActiveDataProvider {
     				array_unshift($fields,$this->model->getTableAlias().'.'.$this->model->getMetaData()->tableSchema->primaryKey);
     				$c->order = 'FIELD('.implode(',',$fields).')';// keep the order of objects as it is from solr's results
     				$data = $this->model->findAllByPk($ids,$c);
+                    $ids = array_flip($ids);
+                    foreach($data as $n => $model) {
+                        $model->setSolrDocument($results[$ids[$model->getPrimaryKey()]]);
+                    }
 				}else {
 				    $data = array(); // prevent any errors
 				}
@@ -113,7 +158,9 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$data=$this->model->findAll($criteria);
 			$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
 		}
-
+        if ($pagination) {
+            $pagination->setItemCount($this->_solrQueryResponse->getResults()->total);
+        }
 
 		return $data;
 	}
@@ -178,4 +225,13 @@ class ASolrDataProvider extends CActiveDataProvider {
 		}
 		return $this->_solrQueryResponse->getRangeFacets();
 	}
+
+    /**
+     * Gets the solr query response
+     * @return ASolrQueryResponse the response from solr
+     */
+    public function getSolrQueryResponse()
+    {
+        return $this->_solrQueryResponse;
+    }
 }
