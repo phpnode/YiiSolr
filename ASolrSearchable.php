@@ -108,10 +108,14 @@ class ASolrSearchable extends CActiveRecordBehavior {
 				$names[$modelAttribute] = array($this->getOwner(),$modelAttribute);
 				continue;
 			}
-			$reference = $this->getOwner();
+			$reference = $this->getOwner(); /* @var CActiveRecord $owner */
 			$pointers = explode(".",$modelAttribute);
 			$lastItem = array_pop($pointers);
 			foreach($pointers as $pointer) {
+                if (!$reference->hasRelated($pointer)) {
+                    // we don't lazy load for this, just ignore it
+                    continue 2;
+                }
 				$reference = $reference->{$pointer};
 			}
 			$names[$modelAttribute] = array($reference, $lastItem);
