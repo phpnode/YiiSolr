@@ -39,6 +39,15 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @var boolean
 	 */
 	public $autoIndex = true;
+
+	/**
+	 * Whether to be smart about when to reindex documents.
+	 * If this is true, changes will be pushed to solr only if attributes that
+	 * we care about have changed.
+	 * @var boolean
+	 */
+	public $smartIndex = true;
+
 	/**
 	 * The configuration for the associated ASolrDocument class
 	 * @var array
@@ -108,14 +117,10 @@ class ASolrSearchable extends CActiveRecordBehavior {
 				$names[$modelAttribute] = array($this->getOwner(),$modelAttribute);
 				continue;
 			}
-			$reference = $this->getOwner(); /* @var CActiveRecord $owner */
+			$reference = $this->getOwner(); /* @var CActiveRecord $reference */
 			$pointers = explode(".",$modelAttribute);
 			$lastItem = array_pop($pointers);
 			foreach($pointers as $pointer) {
-                if (!$reference->hasRelated($pointer)) {
-                    // we don't lazy load for this, just ignore it
-                    continue 2;
-                }
 				$reference = $reference->{$pointer};
 			}
 			$names[$modelAttribute] = array($reference, $lastItem);
@@ -191,10 +196,12 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @param CEvent $event the event raised
 	 */
 	public function afterFind($event) {
-		$this->_oldAttributes = array();
-		foreach($this->resolveAttributes() as $key => $item) {
-			list($object, $property) = $item;
-			$this->_oldAttributes[$key] = $object->{$property};
+		if ($this->smartIndex) {
+			$this->_oldAttributes = array();
+			foreach($this->resolveAttributes() as $key => $item) {
+				list($object, $property) = $item;
+				$this->_oldAttributes[$key] = $object->{$property};
+			}
 		}
 	}
 
@@ -305,7 +312,7 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @return boolean true if the item has been modified, otherwise false
 	 */
 	public function getIsModified() {
-		if (count($this->_oldAttributes) == 0) {
+		if (!$this->smartIndex || count($this->_oldAttributes) == 0) {
 			return true;
 		}
 		foreach($this->resolveAttributes() as $key => $item) {

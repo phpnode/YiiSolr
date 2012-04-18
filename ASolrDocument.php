@@ -74,10 +74,10 @@ class ASolrDocument extends CFormModel {
 	 */
 	private $_new = true;
 
-    /**
-     * @var array the highlights for this record if highlighting is enabled
-     */
-    private $_highlights;
+	/**
+	 * @var array the highlights for this record if highlighting is enabled
+	 */
+	private $_highlights;
 
 	/**
 	 * An array of static model instances, clas name => model
@@ -328,10 +328,10 @@ class ASolrDocument extends CFormModel {
 		}
 		switch (strtolower($type)) {
 			case "date":
-                $date = $this->{$attribute};
-                if ($date == "0000-00-00T00:00:00Z") {
-                    $date = 0;
-                }
+				$date = $this->{$attribute};
+				if ($date == "0000-00-00T00:00:00Z") {
+					$date = 0;
+				}
 				$date = $this->createSolrDateTime(is_int($date) ? $date : strtotime($date));
 				return $date;
 				break;
@@ -1153,27 +1153,27 @@ class ASolrDocument extends CFormModel {
 		return $this->_commitWithin;
 	}
 
-    /**
-     * Sets the highlights for this record
-     * @param array $highlights the highlights, attribute => highlights
-     */
-    public function setHighlights($highlights)
-    {
-        $this->_highlights = $highlights;
-    }
+	/**
+	 * Sets the highlights for this record
+	 * @param array $highlights the highlights, attribute => highlights
+	 */
+	public function setHighlights($highlights)
+	{
+		$this->_highlights = $highlights;
+	}
 
-    /**
-     * Gets the highlights if highlighting is enabled
-     * @param string|null $attribute the attribute to get highlights for, if null all attributes will be returned
-     * @return array|boolean the highlighted results
-     */
-    public function getHighlights($attribute = null)
-    {
-        if ($attribute === null)
-            return $this->_highlights;
-        if (!isset($this->_highlights[$attribute]))
-            return false;
-        return $this->_highlights[$attribute];
-    }
+	/**
+	 * Gets the highlights if highlighting is enabled
+	 * @param string|null $attribute the attribute to get highlights for, if null all attributes will be returned
+	 * @return array|boolean the highlighted results
+	 */
+	public function getHighlights($attribute = null)
+	{
+		if ($attribute === null)
+			return $this->_highlights;
+		if (!isset($this->_highlights[$attribute]))
+			return false;
+		return $this->_highlights[$attribute];
+	}
 }
 

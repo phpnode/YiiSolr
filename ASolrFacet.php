@@ -29,7 +29,7 @@ class ASolrFacet extends CMap {
 
 	/**
 	 * The solr query response this facet belongs to
-	 * @var ASolrQueryReseponse
+	 * @var ASolrQueryResponse
 	 */
 	public $response;
 }

@@ -136,17 +136,17 @@ class ASolrDataProvider extends CActiveDataProvider {
 					$ids[$n] = $item->getPrimaryKey();
 				}
 				if (!empty($ids)){
-    				$c = new CDbCriteria();
-    				$fields = $ids;
-    				array_unshift($fields,$this->model->getTableAlias().'.'.$this->model->getMetaData()->tableSchema->primaryKey);
-    				$c->order = 'FIELD('.implode(',',$fields).')';// keep the order of objects as it is from solr's results
-    				$data = $this->model->findAllByPk($ids,$c);
-                    $ids = array_flip($ids);
-                    foreach($data as $n => $model) {
-                        $model->setSolrDocument($results[$ids[$model->getPrimaryKey()]]);
-                    }
+					$c = new CDbCriteria();
+					$fields = $ids;
+					array_unshift($fields,$this->model->getTableAlias().'.'.$this->model->getMetaData()->tableSchema->primaryKey);
+					$c->order = 'FIELD('.implode(',',$fields).')';// keep the order of objects as it is from solr's results
+					$data = $this->model->findAllByPk($ids,$c);
+					$ids = array_flip($ids);
+					foreach($data as $n => $model) {
+						$model->setSolrDocument($results[$ids[$model->getPrimaryKey()]]);
+					}
 				}else {
-				    $data = array(); // prevent any errors
+					$data = array(); // prevent any errors
 				}
 			}
 			else {
@@ -158,9 +158,9 @@ class ASolrDataProvider extends CActiveDataProvider {
 			$data=$this->model->findAll($criteria);
 			$this->_solrQueryResponse = $this->model->getSolrConnection()->getLastQueryResponse();
 		}
-        if ($pagination) {
-            $pagination->setItemCount($this->_solrQueryResponse->getResults()->total);
-        }
+		if ($pagination) {
+			$pagination->setItemCount($this->_solrQueryResponse->getResults()->total);
+		}
 
 		return $data;
 	}
@@ -226,12 +226,12 @@ class ASolrDataProvider extends CActiveDataProvider {
 		return $this->_solrQueryResponse->getRangeFacets();
 	}
 
-    /**
-     * Gets the solr query response
-     * @return ASolrQueryResponse the response from solr
-     */
-    public function getSolrQueryResponse()
-    {
-        return $this->_solrQueryResponse;
-    }
+	/**
+	 * Gets the solr query response
+	 * @return ASolrQueryResponse the response from solr
+	 */
+	public function getSolrQueryResponse()
+	{
+		return $this->_solrQueryResponse;
+	}
 }

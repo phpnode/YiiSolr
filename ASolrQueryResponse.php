@@ -106,7 +106,7 @@ class ASolrQueryResponse extends CComponent {
 	}
 	/**
 	 * Loads the facet objects
-     * @return boolean true if facets were loaded
+	 * @return boolean true if facets were loaded
 	 */
 	protected function loadFacets() {
 		$this->_dateFacets = new CAttributeCollection();
@@ -147,7 +147,7 @@ class ASolrQueryResponse extends CComponent {
 				}
 			}
 		}
-        return true;
+		return true;
 	}
 
 
@@ -170,19 +170,19 @@ class ASolrQueryResponse extends CComponent {
 		if ($this->_results === null) {
 			$this->_results = new ASolrResultList;
 			$this->_results->total = isset($this->_solrObject->response->numFound) ? $this->_solrObject->response->numFound : 0;
-            $highlighting = isset($this->_solrObject->highlighting);
+			$highlighting = isset($this->_solrObject->highlighting);
 
-            if ($highlighting) {
-                $highlights = array_values((array) $this->_solrObject->highlighting);
-            }
+			if ($highlighting) {
+				$highlights = array_values((array) $this->_solrObject->highlighting);
+			}
 			if ($this->_results->total > 0) {
 				foreach($this->_solrObject->response->docs as $n => $row) {
 					$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
 					$result->setPosition($n + $this->_criteria->getOffset());
 					$result->setSolrResponse($this);
-                    if ($highlighting && isset($highlights[$n])) {
-                        $result->setHighlights($highlights[$n]);
-                    }
+					if ($highlighting && isset($highlights[$n])) {
+						$result->setHighlights($highlights[$n]);
+					}
 					$this->_results->add($result);
 				}
 			}
