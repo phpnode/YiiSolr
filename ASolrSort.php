@@ -11,7 +11,7 @@
  *			'asc'=>'created_at asc',
  *			'desc'=>'created_at desc',
  *		),
- *		
+ *
  *		// Solr parameters can be defined like this:
  *		'keyword'=>array(
  *			'asc'=>array(

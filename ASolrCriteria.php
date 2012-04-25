@@ -141,35 +141,20 @@ class ASolrCriteria extends SolrQuery {
 		return $this->setStart($value);
 	}
 
+    /**
+     * Gets the sort order
+     * @return string the sort order
+     */
 	public function getOrder() {
-		return implode(", ",$this->getSortFields());
+		return $this->getParam("sort");
 	}
 
+    /**
+     * Sets the sort order
+     * @param string $value the new sort order
+     */
 	public function setOrder($value) {
-		$parts = explode(",",$value);
-		$fields = $this->getSortFields();
-		if (is_array($fields)) {
-			foreach($fields as $field) {
-				if (strcasecmp(substr($field,-5,5)," DESC") === 0) {
-					$this->removeSortField(substr($field,0,-5));
-				}
-				else if (strcasecmp(substr($field,-4,4)," ASC") === 0) {
-					$this->removeSortField(substr($field,0,-4));
-				}
-			}
-		}
-		foreach($parts as $part) {
-			$part = trim($part);
-			if (strcasecmp(substr($part,-5,5)," DESC") === 0) {
-				$this->addSortField(substr($part,0,-5),SolrQuery::ORDER_DESC);
-			}
-			else if (strcasecmp(substr($part,-4,4)," ASC") === 0) {
-				$this->addSortField(substr($part,0,-4),SolrQuery::ORDER_ASC);
-			}
-			else {
-				$this->addSortField($part, SolrQuery::ORDER_ASC);
-			}
-		}
+		$this->setParam("sort",$value);
 	}
 
 	/**
