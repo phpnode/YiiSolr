@@ -187,10 +187,11 @@ class ASolrConnection extends CApplicationComponent {
 			$profileTag = "packages.solr.AConnection.rawSearch(".$criteria->__toString().")";
 			Yii::beginProfile($profileTag);
 		}
+		$this->resetClient(); // solr client is not safely reusable, reset before every request
 		$response = $this->getClient()->query($criteria)->getResponse();
-		if ($this->enableProfiling) {
+		if ($this->enableProfiling)
 			Yii::endProfile($profileTag);
-		}
+
 		return $response;
 	}
 	/**
@@ -199,5 +200,12 @@ class ASolrConnection extends CApplicationComponent {
 	 */
 	public function getLastQueryResponse() {
 		return $this->_lastQueryResponse;
+	}
+
+	/**
+	 * Reset the solr client
+	 */
+	public function resetClient() {
+		$this->_client = new SolrClient($this->getClientOptions()->toArray());
 	}
 }
