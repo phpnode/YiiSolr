@@ -302,6 +302,6 @@ class ASolrCriteria extends SolrQuery {
 	 * @return string the escaped string
 	 */
 	public function escape($string) {
-		return addcslashes($string, ' + - & | ! ( ) { } [ ] ^ \' _ \" ~ * ? : \ ');
+        return SolrUtils::escapeQueryChars($string);
 	}
 }
