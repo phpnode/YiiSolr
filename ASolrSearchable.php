@@ -168,7 +168,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 			foreach($this->resolveAttributes() as $attribute => $item) {
 				list($object, $property) = $item;
 				$resolvedAttributeName = $this->resolveAttributeName($attribute);
-				$this->_solrDocument->{$resolvedAttributeName} = $object->{$property};
+				if (is_object($object))
+					$this->_solrDocument->{$resolvedAttributeName} = $object->{$property};
 			}
 		}
 		return $this->_solrDocument;
@@ -186,7 +187,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 		$this->_oldAttributes = array();
 		foreach($this->resolveAttributes() as $key => $item) {
 			list($object, $property) = $item;
-			$this->_oldAttributes[$key] = $object->{$property};
+			if (is_object($object))
+				$this->_oldAttributes[$key] = $object->{$property};
 		}
 		return true;
 	}

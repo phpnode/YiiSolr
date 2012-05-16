@@ -329,7 +329,7 @@ class ASolrDocument extends CFormModel {
 		switch (strtolower($type)) {
 			case "date":
 				$date = $this->{$attribute};
-				if ($date == "0000-00-00T00:00:00Z") {
+				if (substr($date,0,4) == "0000") {
 					$date = 0;
 				}
 				$date = $this->createSolrDateTime(is_int($date) ? $date : strtotime($date));
@@ -351,6 +351,18 @@ class ASolrDocument extends CFormModel {
 		date_default_timezone_set($defaultTZ);
 		return $date;
 	}
+
+	/**
+	 * Parse a solr date time into unix time
+	 * @param string $time the time from solr
+	 * @return integer the unix time
+	 */
+	public function parseSolrDateTime($time) {
+		if (substr($time,0,7) == "2-11-30") // this is a broken date / time in solr
+			return null;
+		return strtotime($time);
+	}
+
 
 	/**
 	 * Returns a property value or an event handler list by property or event name.
@@ -457,7 +469,17 @@ class ASolrDocument extends CFormModel {
 			$record=$this->instantiate($attributes);
 			$record->setScenario('update');
 			$record->init();
+			$mapping = $this->attributeMapping();
 			foreach($attributes as $name=>$value) {
+				if (isset($mapping[$name])) {
+					switch ($mapping[$name]) {
+						case "date";
+							$value = $this->parseSolrDateTime($value);
+							if ($value !== null)
+								$value = date("Y-m-d H:i:s", $value);
+							break;
+					}
+				}
 				$record->$name=$value;
 			}
 			$record->_pk=$record->getPrimaryKey();
