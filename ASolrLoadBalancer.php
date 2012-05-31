@@ -2,7 +2,28 @@
 /**
  * Simple load balancer for solr connections.
  * Dispatches reads to one server and writes to another.
- *
+ * Configuration:
+ * <pre>
+ * 'components' => array(
+ *     'yourIndex' => array(
+ *         'class' => 'packages.solr.ASolrLoadBalancer',
+ *         'readConnection' => array(
+ *             'clientOptions' => array(
+ *                 'hostname' => 'firstserver',
+ *                 'port' => '8080',
+ *                 'path' => '/solr/core_something'
+ *             ),
+ *         ),
+ *         'writeConnection' => array(
+ *              'clientOptions' => array(
+ *                  'hostname' => 'secondserver',
+ *                      'port' => '8080',
+ *                      'path' => '/solr/core_something'
+ *              ),
+ *          )
+ *      ),
+ *  ),
+ * </pre>
  * @package packages.solr
  * @author Charles Pick / PeoplePerHour.com
  */
