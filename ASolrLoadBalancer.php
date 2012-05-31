@@ -17,8 +17,8 @@
  *         'writeConnection' => array(
  *              'clientOptions' => array(
  *                  'hostname' => 'secondserver',
- *                      'port' => '8080',
- *                      'path' => '/solr/core_something'
+ *                  'port' => '8080',
+ *                  'path' => '/solr/core_something'
  *              ),
  *          )
  *      ),
