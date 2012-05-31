@@ -4,7 +4,8 @@
  * @author Charles Pick / PeoplePerHour.com
  * @package packages.solr
  */
-class ASolrConnection extends CApplicationComponent {
+class ASolrConnection extends CApplicationComponent implements IASolrConnection
+{
 	/**
 	 * Whether to profile solr queries or not
 	 * @var boolean
