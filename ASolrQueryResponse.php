@@ -122,10 +122,12 @@ class ASolrQueryResponse extends CComponent {
 		}
 		foreach($this->getSolrObject()->facet_counts as $facetType => $item) {
 			foreach($item as $facetName => $values) {
-				if (is_object($values)) {
+				/* Using @ to suppress weird errors
+				 * "Illegal member variable name" */
+				if (@is_object($values)) {
 					$values = (array) $values;
 				}
-				elseif (!is_array($values)) {
+				elseif (!@is_array($values)) {
 					$values = array("value" => $values);
 				}
 				$facet = new ASolrFacet($values);
