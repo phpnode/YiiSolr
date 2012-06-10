@@ -826,11 +826,19 @@ class ASolrDocument extends CFormModel {
 		}
 
 		$response = $this->getSolrConnection()->search($criteria,$this);
+		$results = $response->getResults()->toArray();
+		if (!count($results) && $criteria->getParam("group")) {
+			// this is the result of a group by query
+			$groups = $response->getGroups()->toArray();
+			$group = array_shift($groups);
+			if ($group)
+				$results = $group->toArray();
+		}
 		if ($all) {
-			return $response->getResults()->toArray();
+			return $results;
 		}
 		else {
-			$results = $response->getResults()->toArray();
+
 			return array_shift($results);
 		}
 

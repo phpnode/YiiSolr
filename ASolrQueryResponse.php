@@ -28,6 +28,12 @@ class ASolrQueryResponse extends CComponent {
 	protected $_results;
 
 	/**
+	 * The list of groups in the search results, if applicable
+	 * @var ASolrGroup[]
+	 */
+	protected $_groups;
+
+	/**
 	 * A collection of query facets
 	 * @var CAttributeCollection
 	 */
@@ -47,6 +53,7 @@ class ASolrQueryResponse extends CComponent {
 	 * @var CAttributeCollection
 	 */
 	protected $_rangeFacets;
+
 	/**
 	 * Constructor.
 	 * @param SolrObject $solrObject the response from solr
@@ -60,14 +67,43 @@ class ASolrQueryResponse extends CComponent {
 	}
 
 	/**
+	 * Gets a list of groups in the search results, if this is
+	 * a group query.
+	 * @return ASolrGroup[] a list of groups
+	 */
+	public function getGroups() {
+		if ($this->_groups === null)
+			$this->loadGroups();
+		return $this->_groups;
+	}
+
+	/**
+	 * Loads the groups in the result set, if any
+	 * @return boolean true if the groups were loaded successfully
+	 */
+	protected function loadGroups()
+	{
+		$this->_groups = new CAttributeCollection;
+		if (!isset($this->getSolrObject()->grouped))
+			return false;
+		foreach($this->getSolrObject()->grouped as $name => $rawGroup) {
+			$group = new ASolrGroup();
+			$group->name = $name;
+			$group->total = $rawGroup->matches;
+			$this->processResults($rawGroup->doclist->docs, $group);
+			$this->_groups->{$name} = $group;
+		}
+		return true;
+	}
+	/**
 	 * Gets an array of date facets that belong to this query response
 	 * @return ASolrFacet[]
 	 */
 	public function getDateFacets()
 	{
-		if ($this->_dateFacets === null) {
+		if ($this->_dateFacets === null)
 			$this->loadFacets();
-		}
+
 		return $this->_dateFacets;
 	}
 
@@ -77,9 +113,9 @@ class ASolrQueryResponse extends CComponent {
 	 */
 	public function getFieldFacets()
 	{
-		if ($this->_fieldFacets === null) {
+		if ($this->_fieldFacets === null)
 			$this->loadFacets();
-		}
+
 		return $this->_fieldFacets;
 	}
 	/**
@@ -88,9 +124,9 @@ class ASolrQueryResponse extends CComponent {
 	 */
 	public function getQueryFacets()
 	{
-		if ($this->_queryFacets === null) {
+		if ($this->_queryFacets === null)
 			$this->loadFacets();
-		}
+
 		return $this->_queryFacets;
 	}
 	/**
@@ -99,9 +135,9 @@ class ASolrQueryResponse extends CComponent {
 	 */
 	public function getRangeFacets()
 	{
-		if ($this->_rangeFacets === null) {
+		if ($this->_rangeFacets === null)
 			$this->loadFacets();
-		}
+
 		return $this->_rangeFacets;
 	}
 	/**
@@ -117,17 +153,16 @@ class ASolrQueryResponse extends CComponent {
 		$this->_queryFacets->caseSensitive = true;
 		$this->_rangeFacets = new CAttributeCollection();
 		$this->_rangeFacets->caseSensitive = true;
-		if (!isset($this->getSolrObject()->facet_counts)) {
+		if (!isset($this->getSolrObject()->facet_counts))
 			return false;
-		}
+
 		foreach($this->getSolrObject()->facet_counts as $facetType => $item) {
 			foreach($item as $facetName => $values) {
-				if (is_object($values)) {
+				if (is_object($values))
 					$values = (array) $values;
-				}
-				elseif (!is_array($values)) {
+				elseif (!is_array($values))
 					$values = array("value" => $values);
-				}
+
 				$facet = new ASolrFacet($values);
 				$facet->name = $facetName;
 				$facet->type = $facetType;
@@ -166,27 +201,36 @@ class ASolrQueryResponse extends CComponent {
 	 */
 	public function getResults()
 	{
-		$modelClass = $this->_modelClass;
 		if ($this->_results === null) {
 			$this->_results = new ASolrResultList;
 			$this->_results->total = isset($this->_solrObject->response->numFound) ? $this->_solrObject->response->numFound : 0;
-			$highlighting = isset($this->_solrObject->highlighting);
-
-			if ($highlighting) {
-				$highlights = array_values((array) $this->_solrObject->highlighting);
-			}
-			if ($this->_results->total > 0) {
-				foreach($this->_solrObject->response->docs as $n => $row) {
-					$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
-					$result->setPosition($n + $this->_criteria->getOffset());
-					$result->setSolrResponse($this);
-					if ($highlighting && isset($highlights[$n])) {
-						$result->setHighlights($highlights[$n]);
-					}
-					$this->_results->add($result);
-				}
-			}
+			if ($this->_results->total)
+				$this->processResults($this->_solrObject->response->docs,$this->_results);
 		}
 		return $this->_results;
+	}
+
+	/**
+	 * Processes a list of results
+	 * @param SolrObject $rawResults the raw results to process
+	 * @param ASolrResultList $list the list of results
+	 */
+	protected function processResults($rawResults, $list = null) {
+		if ($list === null)
+			$list = new ASolrResultList;
+		$modelClass = $this->_modelClass;
+		$highlighting = isset($this->_solrObject->highlighting);
+		if ($highlighting)
+			$highlights = array_values((array) $this->_solrObject->highlighting);
+		foreach($rawResults as $n => $row) {
+			$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
+			$result->setPosition($n + $this->_criteria->getOffset());
+			$result->setSolrResponse($this);
+			if ($highlighting && isset($highlights[$n]))
+				$result->setHighlights($highlights[$n]);
+
+			$list->add($result);
+		}
+		return $list;
 	}
 }
