@@ -71,6 +71,12 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 */
 	protected $_attributes;
 
+    /**
+     * A method in the model that tells us if the current model should be indexed in Solr or not.
+     * @var string
+     */
+    public $shouldBeIndexed;
+
 	/**
 	 * Stores the attributes of the model after it is found.
 	 * Used to determine whether any of the attributes we care about have changed or not
@@ -179,7 +185,9 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index() {
-		$document = $this->getSolrDocument(true);
+        if (!$this->isIndexable())
+            return true;
+        $document = $this->getSolrDocument(true);
 		if (!$document->save()) {
 			return false;
 		}
@@ -218,10 +226,12 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @param CEvent $event the event raised
 	 */
 	public function afterSave($event) {
-		if (!$this->autoIndex || !$this->getIsModified()) {
-			return;
-		}
-		$this->index();
+        if ($this->isIndexable()) {
+            if (!$this->autoIndex || !$this->getIsModified()) {
+                return;
+            }
+            $this->index();
+        }
 	}
 	/**
 	 * Finds an active record that matches the given criteria using solr
@@ -355,4 +365,8 @@ class ASolrSearchable extends CActiveRecordBehavior {
 		}
 		return $this->_solrCriteria;
 	}
+
+    protected function isIndexable() {
+        return (is_null($this->shouldBeIndexed) || $this->getOwner()->{$this->shouldBeIndexed}());
+    }
 }
