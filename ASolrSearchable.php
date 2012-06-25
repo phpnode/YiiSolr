@@ -36,7 +36,11 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	/**
 	 * Whether to automatically index or reindex the document when it changes.
 	 * Defaults to true.
-	 * @var boolean
+	 * You can also pass a method that will be evaluated in order to decide if
+	 * the current model should be indexed or not
+	 * eg: autoIndex => function() { return true; },
+	 * while in the definition of attributes in the models behaviors() method
+	 * @var boolean | callable
 	 */
 	public $autoIndex = true;
 
@@ -179,14 +183,18 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index() {
+		if (!$this->isIndexable())
+			return true;
 		$document = $this->getSolrDocument(true);
 		if (!$document->save()) {
 			return false;
 		}
-		$this->_oldAttributes = array();
-		foreach($this->resolveAttributes() as $key => $item) {
-			list($object, $property) = $item;
-			$this->_oldAttributes[$key] = isset($object) ? $object->{$property} : null;
+		if ($this->smartIndex) {
+			$this->_oldAttributes = array();
+			foreach($this->resolveAttributes() as $key => $item) {
+				list($object, $property) = $item;
+				$this->_oldAttributes[$key] = isset($object) ? $object->{$property} : null;
+			}
 		}
 		return true;
 	}
@@ -218,7 +226,7 @@ class ASolrSearchable extends CActiveRecordBehavior {
 	 * @param CEvent $event the event raised
 	 */
 	public function afterSave($event) {
-		if (!$this->autoIndex || !$this->getIsModified()) {
+		if (!$this->isIndexable() || !$this->getIsModified()) {
 			return;
 		}
 		$this->index();
@@ -354,5 +362,13 @@ class ASolrSearchable extends CActiveRecordBehavior {
 			$this->_solrCriteria = new ASolrCriteria();
 		}
 		return $this->_solrCriteria;
+	}
+
+	/**
+	 * Checks whether the current model should be indexed or not.
+	 * @return bool
+	 */
+	protected function isIndexable() {
+		return is_callable($this->autoIndex) ? call_user_func($this->autoIndex) : $this->autoIndex;
 	}
 }
