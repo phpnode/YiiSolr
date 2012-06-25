@@ -10,7 +10,7 @@
  * @author Charles Pick / PeoplePerHour.com
  * @package packages.solr
  */
-class ASolrDocument extends CFormModel {
+class ASolrDocument extends CFormModel implements IASolrDocument{
 	/**
 	 * The solr connection
 	 * @var ASolrConnection
@@ -205,7 +205,7 @@ class ASolrDocument extends CFormModel {
 		else
 		{
 			self::$solr=Yii::app()->solr;
-			if(self::$solr instanceof ASolrConnection)
+			if(self::$solr instanceof IASolrConnection)
 				return self::$solr;
 			else
 				throw new CException(Yii::t('yii','Solr Document requires a "solr" ASolrConnection application component.'));

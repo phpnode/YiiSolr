@@ -16,7 +16,7 @@ class ASolrSearchableTest extends CTestCase {
 		$this->assertEquals(array_combine($attributeNames,$attributeNames),$behavior->getAttributes());
 
 		$solrDocument = $behavior->getSolrDocument();
-		$this->assertTrue($solrDocument instanceof ASolrDocument);
+		$this->assertTrue($solrDocument instanceof IASolrDocument);
 		foreach($attributeNames as $attribute) {
 			$this->assertTrue(isset($solrDocument->{$attribute}));
 			$this->assertEquals($model->{$attribute},$solrDocument->{$attribute});

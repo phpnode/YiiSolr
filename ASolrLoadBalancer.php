@@ -131,7 +131,7 @@ class ASolrLoadBalancer extends CApplicationComponent implements IASolrConnectio
 	 */
 	public function setReadConnection($readConnection)
 	{
-		if (!($readConnection instanceof ASolrConnection)) {
+		if (!($readConnection instanceof IASolrConnection)) {
 			$attributes = $readConnection;
 			$readConnection = new ASolrConnection();
 			foreach($attributes as $attribute => $value)
@@ -155,7 +155,7 @@ class ASolrLoadBalancer extends CApplicationComponent implements IASolrConnectio
 	 */
 	public function setWriteConnection($writeConnection)
 	{
-		 if (!($writeConnection instanceof ASolrConnection)) {
+		 if (!($writeConnection instanceof IASolrConnection)) {
 			$attributes = $writeConnection;
 			$writeConnection = new ASolrConnection();
 			foreach($attributes as $attribute => $value)

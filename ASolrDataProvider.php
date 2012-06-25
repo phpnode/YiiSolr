@@ -41,7 +41,7 @@ class ASolrDataProvider extends CActiveDataProvider {
 	 */
 	public function __construct($modelClass,$config=array())
 	{
-		if($modelClass instanceof ASolrDocument || $modelClass instanceof CActiveRecord) {
+		if($modelClass instanceof IASolrDocument || $modelClass instanceof CActiveRecord) {
 			$this->modelClass=get_class($modelClass);
 			$this->model=$modelClass;
 		}

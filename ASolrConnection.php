@@ -89,7 +89,7 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index($document, $commitWithin = null) {
-		if ($document instanceof ASolrDocument) {
+		if ($document instanceof IASolrDocument) {
 			if ($commitWithin === null && $document->getCommitWithin() > 0) {
 				$commitWithin = $document->getCommitWithin();
 			}
@@ -101,7 +101,7 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 			}
 			$document = (array) $document;
 			foreach($document as $key => $value) {
-				if ($value instanceof ASolrDocument) {
+				if ($value instanceof IASolrDocument) {
 					$document[$key] = $value->getInputDocument();
 				}
 			}
@@ -123,13 +123,13 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 	 * @return boolean true if the document was deleted successfully
 	 */
 	public function delete($document) {
-		if ($document instanceof ASolrDocument) {
+		if ($document instanceof IASolrDocument) {
 			$document = $document->getPrimaryKey();
 		}
 		elseif (is_array($document) || $document instanceof Traversable) {
 			$document = (array) $document;
 			foreach($document as $key => $value) {
-				if ($value instanceof ASolrDocument) {
+				if ($value instanceof IASolrDocument) {
 					$document[$key] = $value->getPrimaryKey();
 				}
 			}

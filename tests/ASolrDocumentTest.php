@@ -82,7 +82,7 @@ class ASolrDocumentTest extends CTestCase {
 			$criteria->query = "id:".$attributes['id'];
 			$doc = ASolrDocument::model()->find($criteria);
 			$this->assertTrue(is_object($doc));
-			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertTrue($doc instanceof IASolrDocument);
 			foreach($attributes as $attribute => $value) {
 				$this->assertEquals($value,$doc->{$attribute});
 			}
@@ -118,7 +118,7 @@ class ASolrDocumentTest extends CTestCase {
 			$criteria->withScores();
 			$doc = ASolrDocument::model()->find($criteria);
 			$this->assertTrue(is_object($doc));
-			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertTrue($doc instanceof IASolrDocument);
 			$this->assertGreaterThan(0, $doc->getScore());
 			foreach($attributes as $attribute => $value) {
 				$this->assertEquals($value,$doc->{$attribute});
@@ -154,7 +154,7 @@ class ASolrDocumentTest extends CTestCase {
 		foreach($this->fixtureData() as $attributes) {
 			$doc = ASolrDocument::model()->findByPk($attributes['id']);
 			$this->assertTrue(is_object($doc));
-			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertTrue($doc instanceof IASolrDocument);
 			foreach($attributes as $attribute => $value) {
 				$this->assertEquals($value,$doc->{$attribute});
 			}
@@ -185,7 +185,7 @@ class ASolrDocumentTest extends CTestCase {
 			unset($attr['links']); // cannot search with arrays
 			$doc = ASolrDocument::model()->findByAttributes($attr);
 			$this->assertTrue(is_object($doc));
-			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertTrue($doc instanceof IASolrDocument);
 			foreach($attributes as $attribute => $value) {
 				$this->assertEquals($value,$doc->{$attribute});
 			}
@@ -197,7 +197,7 @@ class ASolrDocumentTest extends CTestCase {
 			$this->assertEquals(1,count($models));
 			$doc = array_shift($models);
 			$this->assertTrue(is_object($doc));
-			$this->assertTrue($doc instanceof ASolrDocument);
+			$this->assertTrue($doc instanceof IASolrDocument);
 			foreach($attributes as $attribute => $value) {
 				$this->assertEquals($value,$doc->{$attribute});
 			}
