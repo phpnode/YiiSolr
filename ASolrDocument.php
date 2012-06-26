@@ -1205,5 +1205,8 @@ class ASolrDocument extends CFormModel {
 			return false;
 		return $this->_highlights[$attribute];
 	}
+    public function getScoreAnalysis() {
+            return $this->getSolrResponse()->getScoreAnalysis($this->getPrimaryKey());
+    }
 }
 
