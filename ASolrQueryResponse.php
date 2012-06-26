@@ -235,4 +235,9 @@ class ASolrQueryResponse extends CComponent {
 		}
 		return $list;
 	}
+    public function getScoreAnalysis($id) {
+        return isset($this->getSolrObject()->debug['explain'][$id]) ?
+            $this->getSolrObject()->debug['explain'][$id] :
+            null;
+    }
 }
