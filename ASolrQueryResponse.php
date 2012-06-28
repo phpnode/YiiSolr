@@ -235,9 +235,15 @@ class ASolrQueryResponse extends CComponent {
 		}
 		return $list;
 	}
-    public function getScoreAnalysis($id) {
-        return isset($this->getSolrObject()->debug['explain'][$id]) ?
-            $this->getSolrObject()->debug['explain'][$id] :
-            null;
-    }
+	/**
+	 * Return the score analysis, from the debug section of the response if debugQuery was on,
+	 * for the given document id.
+	 * @param int $id The document id that we are trying to get the scoe analysis.
+	 * @return string The score analysis as returned Solr.
+	 */
+	public function getScoreAnalysis($id) {
+		return isset($this->getSolrObject()->debug['explain'][$id]) ?
+			$this->getSolrObject()->debug['explain'][$id] :
+			null;
+	}
 }
