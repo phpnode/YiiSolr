@@ -91,6 +91,12 @@ interface IASolrDocument
 	public function findAll(ASolrCriteria $criteria = null);
 
     /**
+	 * Returns the number of documents matching specified criteria.
+	 * @param ASolrCriteria $criteria solr query criteria.
+	 * @return integer the number of rows found
+	 */
+	public function count(ASolrCriteria $criteria = null);
+    /**
 	 * Creates a solr document with the given attributes.
 	 * This method is internally used by the find methods.
 	 * @param array $attributes attribute values (column name=>column value)
