@@ -158,8 +158,11 @@ class ASolrQueryResponse extends CComponent {
 
 		foreach($this->getSolrObject()->facet_counts as $facetType => $item) {
 			foreach($item as $facetName => $values) {
-				/* Using @ to suppress weird errors
-				 * "Illegal member variable name" */
+				/*
+				 * Using @ to suppress weird errors occactionally coming
+				 * from the solr pecl extension:
+				 * e.g. "Illegal member variable name"
+				 */
 				if (@is_object($values))
 					$values = (array) $values;
 				elseif (!@is_array($values))
@@ -220,11 +223,11 @@ class ASolrQueryResponse extends CComponent {
 	protected function processResults($rawResults, $list = null) {
 		if ($list === null)
 			$list = new ASolrResultList;
+		$modelClass = $this->_modelClass;
+		$highlighting = isset($this->_solrObject->highlighting);
+		if ($highlighting)
+			$highlights = array_values((array) $this->_solrObject->highlighting);
 		if ($rawResults) {
-			$modelClass = $this->_modelClass;
-			$highlighting = isset($this->_solrObject->highlighting);
-			if ($highlighting)
-				$highlights = array_values((array) $this->_solrObject->highlighting);
 			foreach($rawResults as $n => $row) {
 				$result = $modelClass::model()->populateRecord($row); /* @var ASolrDocument $result */
 				$result->setPosition($n + $this->_criteria->getOffset());
@@ -237,15 +240,9 @@ class ASolrQueryResponse extends CComponent {
 		}
 		return $list;
 	}
-	/**
-	 * Return the score analysis, from the debug section of the response if debugQuery was on,
-	 * for the given document id.
-	 * @param int $id The document id that we are trying to get the scoe analysis.
-	 * @return string The score analysis as returned Solr.
-	 */
-	public function getScoreAnalysis($id) {
-		return isset($this->getSolrObject()->debug['explain'][$id]) ?
-			$this->getSolrObject()->debug['explain'][$id] :
-			null;
-	}
+    public function getScoreAnalysis($id) {
+        return isset($this->getSolrObject()->debug['explain'][$id]) ?
+            $this->getSolrObject()->debug['explain'][$id] :
+            null;
+    }
 }

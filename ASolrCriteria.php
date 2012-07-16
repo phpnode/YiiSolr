@@ -64,6 +64,8 @@ class ASolrCriteria extends SolrQuery {
 	public function __set($name,$value)
 	{
 		$setter='set'.$name;
+		if ($name == "query" && empty($value))
+			$value = "*:*";
 		if(method_exists($this,$setter)) {
 			return $this->$setter($value);
 		}
