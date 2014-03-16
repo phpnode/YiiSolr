@@ -82,7 +82,7 @@ class ASolrSort extends CSort
 	/**
 	 * Solr does not support ORDER BY
 	 */
-	public function getOrderBy()
+	public function getOrderBy($criteria = NULL)
 	{
 		throw new CException('Solr sorting does not support ORDER BY');
 	}
