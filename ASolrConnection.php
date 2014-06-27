@@ -89,6 +89,13 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 	 * @return boolean true if the document was indexed successfully
 	 */
 	public function index($document, $commitWithin = null) {
+		// When we add documents we want to overwrite existing documents and avoid duplicates (several documents with the same ID).
+		$overwrite = true;
+		if (solr_get_version() < 2) {
+			// PECL Solr < 2.0 $allowDups was used instead of $overwrite, which does the same functionality with exact opposite bool flag.
+			// See http://www.php.net/manual/en/solrclient.adddocument.php
+			$overwrite = false; // Equivalent of $allowDups = false;
+		}
 		if ($document instanceof IASolrDocument) {
 			if ($commitWithin === null && $document->getCommitWithin() > 0) {
 				$commitWithin = $document->getCommitWithin();
@@ -106,13 +113,13 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 				}
 			}
 			Yii::trace('Adding '.count($document)." documents to the solr index",'packages.solr.ASolrConnection');
-			return $this->getClient()->addDocuments($document,false, $commitWithin)->success();
+			return $this->getClient()->addDocuments($document, $overwrite, $commitWithin)->success();
 		}
 		if ($commitWithin === null) {
 			$commitWithin = 0;
 		}
 		Yii::trace('Adding 1 document to the solr index','packages.solr.ASolrConnection');
-		$response = $this->getClient()->addDocument($document, false,$commitWithin);
+		$response = $this->getClient()->addDocument($document, $overwrite, $commitWithin);
 		return $response->success();
 	}
 
