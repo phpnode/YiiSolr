@@ -91,7 +91,7 @@ class ASolrConnection extends CApplicationComponent implements IASolrConnection
 	public function index($document, $commitWithin = null) {
 		// When we add documents we want to overwrite existing documents and avoid duplicates (several documents with the same ID).
 		$overwrite = true;
-		if (solr_get_version() < 2) {
+		if (version_compare(solr_get_version(), '2.0', '<')) {
 			// PECL Solr < 2.0 $allowDups was used instead of $overwrite, which does the same functionality with exact opposite bool flag.
 			// See http://www.php.net/manual/en/solrclient.adddocument.php
 			$overwrite = false; // Equivalent of $allowDups = false;
